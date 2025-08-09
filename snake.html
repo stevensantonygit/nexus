@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Viper Strike - Space Mode</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Orbitron', 'Arial', sans-serif;
+            background: radial-gradient(ellipse at center, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+            color: #00d4ff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(2px 2px at 20px 30px, #00d4ff, transparent),
+                radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.3), transparent),
+                radial-gradient(1px 1px at 90px 40px, #00d4ff, transparent),
+                radial-gradient(1px 1px at 130px 80px, rgba(255,255,255,0.3), transparent),
+                radial-gradient(2px 2px at 160px 30px, #00d4ff, transparent);
+            background-repeat: repeat;
+            background-size: 200px 100px;
+            animation: starMove 20s linear infinite;
+            opacity: 0.6;
+            z-index: 1;
+        }
+        
+        @keyframes starMove {
+            from { transform: translateY(0px); }
+            to { transform: translateY(-100px); }
+        }
+
+        .game-container {
+            position: relative;
+            border: 3px solid #00d4ff;
+            border-radius: 15px;
+            box-shadow: 0 0 50px rgba(0, 212, 255, 0.4), inset 0 0 20px rgba(0, 212, 255, 0.1);
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 10;
+        }
+
+        .game-ui {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            justify-content: space-between;
+            z-index: 100;
+            font-size: 18px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        .score, .level {
+            padding: 8px 20px;
+            background: rgba(0, 0, 0, 0.9);
+            border-radius: 25px;
+            border: 2px solid #00d4ff;
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+            color: #00d4ff;
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+
+        #gameCanvas {
+            display: block;
+            background: linear-gradient(180deg, #0a0a1a 0%, #1a1a2e 50%, #2a2a4e 100%);
+            border-radius: 10px;
+            cursor: pointer;
+            width: 1000px;
+            height: 700px;
+        }
+
+        .game-over, .start-screen {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            background: rgba(0, 0, 0, 0.95);
+            padding: 50px;
+            border-radius: 20px;
+            border: 3px solid #00d4ff;
+            box-shadow: 0 0 50px rgba(0, 212, 255, 0.4);
+            z-index: 200;
+        }
+
+        .start-screen h1 {
+            color: #00d4ff;
+            margin-bottom: 30px;
+            font-size: 3.5em;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.8);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 20px rgba(0, 212, 255, 0.8); }
+            to { text-shadow: 0 0 30px rgba(0, 212, 255, 1), 0 0 40px rgba(0, 212, 255, 0.8); }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        button {
+            background: linear-gradient(45deg, #00d4ff, #0066cc);
+            border: 2px solid #00d4ff;
+            color: white;
+            padding: 18px 35px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 15px;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.6);
+            background: linear-gradient(45deg, #0066cc, #00d4ff);
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+        }
+
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .easy-mode {
+            background: linear-gradient(45deg, #2ecc71, #27ae60);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .controls {
+            margin-top: 20px;
+            text-align: center;
+            color: #888;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-button">🚀 Back to Station</a>
+    
+    <div class="game-container">
+        <div class="game-ui">
+            <div class="score">Score: <span id="score">0</span></div>
+            <div class="level">Length: <span id="length">1</span></div>
+        </div>
+        <canvas id="gameCanvas" width="600" height="600"></canvas>
+        <div class="game-over" id="gameOver" style="display: none;">
+            <h2>Game Over!</h2>
+            <p>Final Score: <span id="finalScore">0</span></p>
+            <button onclick="restartGame()">Play Again</button>
+            <button onclick="window.location.href='index.html'">🚀 Back to Station</button>
+        </div>
+        <div class="start-screen" id="startScreen">
+            <h1>🐍 Snake Game</h1>
+            <div class="easy-mode">EASY MODE</div>
+            <p>Use ARROW KEYS to move the snake!</p>
+            <p>✨ Slower speed ✨ Bigger grid ✨ Easy controls ✨</p>
+            <button onclick="startGame()">Start Game</button>
+            <button onclick="window.location.href='index.html'">🚀 Back to Station</button>
+        </div>
+    </div>
+    <div class="controls">
+        <p>Controls: ← → ↑ ↓ Arrow Keys to Move</p>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const gridSize = 30; // Bigger grid for easier gameplay
+        const tileCount = canvas.width / gridSize;
+
+        let snake = [
+            {x: 10, y: 10}
+        ];
+        let food = {};
+        let dx = 0;
+        let dy = 0;
+        let score = 0;
+        let gameRunning = false;
+
+        document.addEventListener('keydown', changeDirection);
+
+        function changeDirection(event) {
+            if (!gameRunning) return;
+            
+            const LEFT_KEY = 37;
+            const RIGHT_KEY = 39;
+            const UP_KEY = 38;
+            const DOWN_KEY = 40;
+
+            const keyPressed = event.keyCode;
+            const goingUp = dy === -1;
+            const goingDown = dy === 1;
+            const goingRight = dx === 1;
+            const goingLeft = dx === -1;
+
+            if (keyPressed === LEFT_KEY && !goingRight) {
+                dx = -1;
+                dy = 0;
+            }
+            if (keyPressed === UP_KEY && !goingDown) {
+                dx = 0;
+                dy = -1;
+            }
+            if (keyPressed === RIGHT_KEY && !goingLeft) {
+                dx = 1;
+                dy = 0;
+            }
+            if (keyPressed === DOWN_KEY && !goingUp) {
+                dx = 0;
+                dy = 1;
+            }
+        }
+
+        function startGame() {
+            gameRunning = true;
+            snake = [{x: 10, y: 10}];
+            dx = 0;
+            dy = 0;
+            score = 0;
+            
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('gameOver').style.display = 'none';
+            
+            generateFood();
+            updateUI();
+            gameLoop();
+        }
+
+        function restartGame() {
+            startGame();
+        }
+
+        function gameLoop() {
+            if (!gameRunning) return;
+            
+            setTimeout(function() {
+                clearCanvas();
+                drawFood();
+                moveSnake();
+                drawSnake();
+                
+                if (gameRunning) {
+                    gameLoop();
+                }
+            }, 200); // Slower speed for easy mode
+        }
+
+        function clearCanvas() {
+
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, '#1e3c72');
+            gradient.addColorStop(1, '#2a5298');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < tileCount; i++) {
+                ctx.beginPath();
+                ctx.moveTo(i * gridSize, 0);
+                ctx.lineTo(i * gridSize, canvas.height);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(0, i * gridSize);
+                ctx.lineTo(canvas.width, i * gridSize);
+                ctx.stroke();
+            }
+        }
+
+        function drawSnake() {
+            snake.forEach((segment, index) => {
+                if (index === 0) {
+
+                    ctx.fillStyle = '#27ae60';
+                    ctx.shadowColor = '#27ae60';
+                    ctx.shadowBlur = 15;
+                } else {
+
+                    ctx.fillStyle = '#2ecc71';
+                    ctx.shadowBlur = 5;
+                }
+                
+                ctx.fillRect(segment.x * gridSize + 2, segment.y * gridSize + 2, 
+                           gridSize - 4, gridSize - 4);
+
+                if (index === 0) {
+                    ctx.shadowBlur = 0;
+                    ctx.fillStyle = 'white';
+                    ctx.fillRect(segment.x * gridSize + 8, segment.y * gridSize + 8, 4, 4);
+                    ctx.fillRect(segment.x * gridSize + 18, segment.y * gridSize + 8, 4, 4);
+                }
+            });
+            ctx.shadowBlur = 0;
+        }
+
+        function moveSnake() {
+            if (dx === 0 && dy === 0) return;
+            
+            const head = {x: snake[0].x + dx, y: snake[0].y + dy};
+
+            if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
+                gameOver();
+                return;
+            }
+
+            for (let segment of snake) {
+                if (head.x === segment.x && head.y === segment.y) {
+                    gameOver();
+                    return;
+                }
+            }
+
+            snake.unshift(head);
+
+            if (head.x === food.x && head.y === food.y) {
+                score += 10;
+                updateUI();
+                generateFood();
+                createFoodParticles();
+            } else {
+                snake.pop();
+            }
+        }
+
+        function drawFood() {
+            ctx.fillStyle = '#e74c3c';
+            ctx.shadowColor = '#e74c3c';
+            ctx.shadowBlur = 20;
+
+            const pulse = Math.sin(Date.now() * 0.01) * 2 + 2;
+            ctx.fillRect(food.x * gridSize + pulse, food.y * gridSize + pulse, 
+                        gridSize - pulse * 2, gridSize - pulse * 2);
+
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = 'white';
+            ctx.fillRect(food.x * gridSize + 10, food.y * gridSize + 8, 3, 3);
+            ctx.fillRect(food.x * gridSize + 18, food.y * gridSize + 15, 2, 2);
+        }
+
+        function generateFood() {
+            food = {
+                x: Math.floor(Math.random() * tileCount),
+                y: Math.floor(Math.random() * tileCount)
+            };
+
+            for (let segment of snake) {
+                if (segment.x === food.x && segment.y === food.y) {
+                    generateFood();
+                    return;
+                }
+            }
+        }
+
+        function createFoodParticles() {
+
+            const particles = [];
+            for (let i = 0; i < 8; i++) {
+                particles.push({
+                    x: food.x * gridSize + gridSize / 2,
+                    y: food.y * gridSize + gridSize / 2,
+                    vx: (Math.random() - 0.5) * 5,
+                    vy: (Math.random() - 0.5) * 5,
+                    life: 20
+                });
+            }
+            
+            function animateParticles() {
+                ctx.save();
+                particles.forEach((particle, index) => {
+                    if (particle.life <= 0) {
+                        particles.splice(index, 1);
+                        return;
+                    }
+                    
+                    ctx.globalAlpha = particle.life / 20;
+                    ctx.fillStyle = '#f39c12';
+                    ctx.fillRect(particle.x, particle.y, 3, 3);
+                    
+                    particle.x += particle.vx;
+                    particle.y += particle.vy;
+                    particle.life--;
+                });
+                ctx.restore();
+                
+                if (particles.length > 0) {
+                    requestAnimationFrame(animateParticles);
+                }
+            }
+            
+            animateParticles();
+        }
+
+        function updateUI() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('length').textContent = snake.length;
+        }
+
+        function gameOver() {
+            gameRunning = false;
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('gameOver').style.display = 'block';
+        }
+
+        generateFood();
+    </script>
+</body>
+</html>
+

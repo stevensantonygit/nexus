@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 NEXUS GAMING STATION - Space Command Center</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: radial-gradient(ellipse at center, #0f1419 0%, #020408 70%, #000000 100%);
+            color: #00d4ff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        
+        .starfield {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse 800px 400px at 400px 300px, rgba(64, 224, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse 600px 300px at 200px 100px, rgba(255, 64, 129, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse 1000px 500px at 800px 200px, rgba(124, 77, 255, 0.06) 0%, transparent 50%);
+            z-index: -1;
+            animation: nebulaFloat 20s ease-in-out infinite;
+        }
+
+        @keyframes nebulaFloat {
+            0%, 100% { transform: translateX(0) translateY(0); }
+            33% { transform: translateX(50px) translateY(-30px); }
+            66% { transform: translateX(-30px) translateY(20px); }
+        }
+
+        
+        .space-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: linear-gradient(180deg, rgba(15, 20, 25, 0.95) 0%, rgba(15, 20, 25, 0.8) 100%);
+            border-bottom: 2px solid #00d4ff;
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+        }
+
+        .logo {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.8em;
+            font-weight: 900;
+            color: #00d4ff;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+            letter-spacing: 3px;
+        }
+
+        .nav-controls {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-btn {
+            background: linear-gradient(45deg, rgba(0, 212, 255, 0.1), rgba(0, 212, 255, 0.2));
+            border: 1px solid #00d4ff;
+            color: #00d4ff;
+            padding: 8px 16px;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-btn:hover {
+            background: linear-gradient(45deg, rgba(0, 212, 255, 0.2), rgba(0, 212, 255, 0.3));
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        
+        .main-container {
+            margin-top: 80px;
+            padding: 40px 20px;
+            min-height: calc(100vh - 80px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .hero-section {
+            text-align: center;
+            margin-bottom: 60px;
+            max-width: 1200px;
+        }
+
+        .main-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 4em;
+            font-weight: 900;
+            color: #ffffff;
+            text-shadow: 
+                0 0 20px rgba(0, 212, 255, 0.8),
+                0 0 40px rgba(0, 212, 255, 0.4),
+                0 0 60px rgba(0, 212, 255, 0.2);
+            margin-bottom: 20px;
+            letter-spacing: 4px;
+            animation: titleGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes titleGlow {
+            0%, 100% { text-shadow: 0 0 20px rgba(0, 212, 255, 0.8), 0 0 40px rgba(0, 212, 255, 0.4); }
+            50% { text-shadow: 0 0 30px rgba(0, 212, 255, 1), 0 0 60px rgba(0, 212, 255, 0.6), 0 0 80px rgba(255, 64, 129, 0.3); }
+        }
+
+        .subtitle {
+            font-size: 1.4em;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 40px;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+
+        
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 30px;
+            max-width: 1400px;
+            width: 100%;
+        }
+
+        .game-card {
+            background: linear-gradient(145deg, rgba(15, 20, 25, 0.8), rgba(30, 40, 50, 0.6));
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            cursor: pointer;
+        }
+
+        .game-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .game-card:hover::before {
+            left: 100%;
+        }
+
+        .game-card:hover {
+            transform: translateY(-10px);
+            border-color: #00d4ff;
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.3),
+                0 0 30px rgba(0, 212, 255, 0.2),
+                inset 0 0 20px rgba(0, 212, 255, 0.05);
+        }
+
+        .game-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            display: block;
+            filter: drop-shadow(0 0 10px rgba(0, 212, 255, 0.5));
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .game-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.6em;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 15px;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+        }
+
+        .game-description {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 25px;
+            line-height: 1.6;
+            font-weight: 400;
+        }
+
+        .difficulty {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin-bottom: 20px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .easy { 
+            background: linear-gradient(45deg, rgba(46, 204, 113, 0.2), rgba(39, 174, 96, 0.3));
+            border: 1px solid #2ecc71;
+            color: #2ecc71;
+        }
+
+        .play-button {
+            background: linear-gradient(45deg, #00d4ff, #0099cc);
+            border: none;
+            color: #000;
+            padding: 15px 35px;
+            font-size: 16px;
+            font-weight: 700;
+            font-family: 'Rajdhani', sans-serif;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .play-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .play-button:hover::before {
+            left: 100%;
+        }
+
+        .play-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.4);
+            background: linear-gradient(45deg, #40e0ff, #00d4ff);
+        }
+
+        
+        .toolbar {
+            width: 100%;
+            max-width: 1400px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 40px;
+        }
+        .search-box {
+            flex: 1 1 260px;
+            display: flex;
+            align-items: center;
+            background: rgba(0, 212, 255, 0.08);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            padding: 10px 14px;
+            border-radius: 8px;
+            gap: 10px;
+        }
+        .search-box input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #fff;
+            font-size: 16px;
+            width: 100%;
+            font-family: 'Rajdhani', sans-serif;
+        }
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .filter-btn {
+            background: linear-gradient(45deg, rgba(0, 212, 255, 0.15), rgba(0, 212, 255, 0.25));
+            border: 1px solid rgba(0, 212, 255, 0.4);
+            color: #00d4ff;
+            padding: 8px 18px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            letter-spacing: 1px;
+            font-size: 13px;
+            transition: background 0.3s, transform 0.3s;
+        }
+        .filter-btn.active, .filter-btn:hover { background: linear-gradient(45deg,#00d4ff,#0099cc); color:#000; transform:translateY(-2px);}    
+        .toggle-group { display:flex; gap:12px; align-items:center; }
+        .toggle { cursor:pointer; padding:10px 16px; border:1px solid #00d4ff; border-radius:6px; font-size:13px; background:rgba(0,212,255,0.1); color:#00d4ff; font-weight:600; letter-spacing:1px; }
+        .toggle.on { background:linear-gradient(45deg,#00d4ff,#0099cc); color:#000; }
+
+        
+        .achievements-panel {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 320px;
+            background: linear-gradient(155deg, rgba(15,20,25,0.95), rgba(30,45,60,0.85));
+            border: 2px solid rgba(0,212,255,0.3);
+            border-radius: 14px;
+            padding: 18px 20px 14px;
+            backdrop-filter: blur(12px);
+            font-size: 14px;
+            box-shadow: 0 0 25px rgba(0,212,255,0.15);
+            z-index: 900;
+        }
+        .achievements-panel h4 { margin:0 0 10px; font-family:'Orbitron'; font-size:15px; letter-spacing:2px; color:#00d4ff; }
+        .achievements-list { list-style:none; margin:0; padding:0; max-height:150px; overflow:auto; }
+        .achievements-list li { display:flex; align-items:center; gap:8px; margin-bottom:6px; background:rgba(0,212,255,0.08); padding:6px 8px; border-radius:6px; }
+        .achievements-list li.unlocked { border:1px solid #00d4ff; box-shadow:0 0 8px rgba(0,212,255,0.3); }
+        .achievements-list li span.badge { background:#00d4ff; color:#000; font-weight:700; padding:2px 6px; border-radius:4px; font-size:11px; }
+        .stats-row { display:flex; gap:10px; margin-top:10px; flex-wrap:wrap; }
+        .stat-box { flex:1 1 90px; background:rgba(0,212,255,0.1); border:1px solid rgba(0,212,255,0.25); padding:6px 8px; border-radius:8px; text-align:center; }
+        .stat-box strong { display:block; font-size:16px; color:#00d4ff; }
+        .close-ach { position:absolute; top:6px; right:8px; background:none; border:none; color:#00d4ff; cursor:pointer; font-size:16px; }
+
+        
+        .modal-overlay { position:fixed; inset:0; background:rgba(0,0,10,0.8); display:none; align-items:center; justify-content:center; z-index:1100; }
+        .modal { width: min(560px,90%); background:linear-gradient(160deg, rgba(15,25,35,0.95), rgba(25,45,65,0.85)); border:2px solid rgba(0,212,255,0.4); border-radius:16px; padding:32px 36px 28px; position:relative; box-shadow:0 0 40px rgba(0,212,255,0.3); }
+        .modal h2 { margin:0 0 10px; font-family:'Orbitron'; letter-spacing:2px; color:#fff; }
+        .modal .tagline { color:rgba(255,255,255,0.7); font-size:14px; margin-bottom:16px; }
+        .modal .meta { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:18px; }
+        .pill { background:rgba(0,212,255,0.15); border:1px solid rgba(0,212,255,0.4); padding:4px 10px; border-radius:20px; font-size:12px; letter-spacing:1px; }
+        .launch-btn { background:linear-gradient(45deg,#00d4ff,#0099cc); border:none; color:#000; padding:14px 28px; font-weight:700; font-family:'Rajdhani'; letter-spacing:2px; border-radius:8px; cursor:pointer; transition:.3s; }
+        .launch-btn:hover { transform:translateY(-3px); box-shadow:0 6px 18px rgba(0,212,255,0.4); }
+        .close-modal { position:absolute; top:10px; right:12px; background:none; border:none; color:#00d4ff; font-size:22px; cursor:pointer; }
+        .modal hr { border:none; height:1px; background:linear-gradient(to right,rgba(0,212,255,0.2),rgba(0,212,255,0.6),rgba(0,212,255,0.2)); margin:18px 0; }
+
+        .empty-msg { display:none; margin-top:40px; font-size:18px; color:rgba(255,255,255,0.6); }
+
+        .theme-void body { background:#000; }
+
+        
+        @media (max-width: 768px) {
+            .main-title {
+                font-size: 2.5em;
+            }
+            
+            .games-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .game-card {
+                padding: 20px;
+            }
+            
+            .space-header {
+                padding: 0 20px;
+            }
+            
+            .logo {
+                font-size: 1.4em;
+            }
+        }
+
+        
+        .scan-lines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                transparent 50%,
+                rgba(0, 212, 255, 0.02) 51%,
+                rgba(0, 212, 255, 0.02) 52%,
+                transparent 53%
+            );
+            background-size: 100% 4px;
+            animation: scan 2s linear infinite;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        @keyframes scan {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100vh); }
+        }
+
+        
+        .power-indicator {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 100;
+        }
+
+        .power-bar {
+            width: 4px;
+            height: 40px;
+            background: rgba(0, 212, 255, 0.2);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .power-fill {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: linear-gradient(to top, #00d4ff, #40e0ff);
+            animation: powerPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes powerPulse {
+            0%, 100% { height: 20%; }
+            50% { height: 80%; }
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="starfield" id="starfield"></div>
+    
+    
+    <div class="scan-lines"></div>
+    
+    
+    <div class="power-indicator">
+        <div class="power-bar"><div class="power-fill"></div></div>
+        <div class="power-bar"><div class="power-fill"></div></div>
+        <div class="power-bar"><div class="power-fill"></div></div>
+    </div>
+    
+    
+    <header class="space-header">
+        <div class="logo">NEXUS STATION</div>
+        <nav class="nav-controls">
+            <button class="nav-btn">Systems</button>
+            <button class="nav-btn">Fleet</button>
+            <button class="nav-btn">Command</button>
+        </nav>
+    </header>
+    
+    
+    <div class="main-container">
+        <section class="hero-section">
+            <h1 class="main-title">NEXUS GAMING STATION</h1>
+            <p class="subtitle">Elite Commander Gaming Interface - Choose Your Mission</p>
+        </section>
+        <div class="toolbar">
+            <div class="search-box"><span style="opacity:.6">🔍</span><input id="searchInput" type="text" placeholder="Search missions or tags..." aria-label="Search games"></div>
+            <div class="filter-group" id="filterGroup">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="Defense">Defense</button>
+                <button class="filter-btn" data-filter="Navigation">Navigation</button>
+                <button class="filter-btn" data-filter="Weapons">Weapons</button>
+                <button class="filter-btn" data-filter="Memory">Memory</button>
+                <button class="filter-btn" data-filter="Physics">Physics</button>
+                <button class="filter-btn" data-filter="Resource">Resource</button>
+            </div>
+            <div class="toggle-group">
+                <div id="audioToggle" class="toggle on">Audio ON</div>
+                <div id="themeToggle" class="toggle">Nebula Theme</div>
+                <div id="achToggle" class="toggle on">Achievements</div>
+            </div>
+        </div>
+        <div class="games-grid">
+            <div class="game-card" onclick="openModal(event,'space-defender.html')" data-tags="Defense Shooter Fleet" data-title="SPACE DEFENDER">
+                <span class="game-icon">🚀</span>
+                <h3 class="game-title">SPACE DEFENDER</h3>
+                <div class="difficulty easy">Elite Training</div>
+                <p class="game-description">Defend the frontier colonies from hostile alien forces. Enhanced training protocols with advanced targeting systems.</p>
+                <div class="play-button">Deploy Fleet</div>
+            </div>
+            <div class="game-card" onclick="openModal(event,'snake.html')" data-tags="Navigation Serpent" data-title="SERPENT PROTOCOL">
+                <span class="game-icon">🐍</span>
+                <h3 class="game-title">SERPENT PROTOCOL</h3>
+                <div class="difficulty easy">Navigation Training</div>
+                <p class="game-description">Navigate through asteroid fields using serpentine movement patterns. Master precision piloting in confined spaces.</p>
+                <div class="play-button">Begin Protocol</div>
+            </div>
+            <div class="game-card" onclick="openModal(event,'bubble-pop.html')" data-tags="Weapons Targets Precision" data-title="QUANTUM TARGETS">
+                <span class="game-icon">🎯</span>
+                <h3 class="game-title">QUANTUM TARGETS</h3>
+                <div class="difficulty easy">Weapons Training</div>
+                <p class="game-description">Destroy quantum anomalies with precision targeting. Enhanced targeting interface for improved accuracy.</p>
+                <div class="play-button">Engage Weapons</div>
+            </div>
+            <div class="game-card" onclick="openModal(event,'memory-match.html')" data-tags="Memory Brain Neural" data-title="NEURAL LINK">
+                <span class="game-icon">🧠</span>
+                <h3 class="game-title">NEURAL LINK</h3>
+                <div class="difficulty easy">Memory Enhancement</div>
+                <p class="game-description">Enhance cognitive abilities through neural pattern matching. Improve tactical memory for complex operations.</p>
+                <div class="play-button">Initialize Link</div>
+            </div>
+            <div class="game-card" onclick="openModal(event,'basketball.html')" data-tags="Physics Gravity Ball" data-title="GRAVITY BALL">
+                <span class="game-icon">⚽</span>
+                <h3 class="game-title">GRAVITY BALL</h3>
+                <div class="difficulty easy">Physics Training</div>
+                <p class="game-description">Master gravitational mechanics through projectile training. Essential for orbital maneuvers and supply drops.</p>
+                <div class="play-button">Launch Training</div>
+            </div>
+            <div class="game-card" onclick="openModal(event,'star-collector.html')" data-tags="Resource Stars Collect" data-title="STELLAR HARVEST">
+                <span class="game-icon">⭐</span>
+                <h3 class="game-title">STELLAR HARVEST</h3>
+                <div class="difficulty easy">Resource Collection</div>
+                <p class="game-description">Collect stellar resources while avoiding cosmic hazards. Critical training for deep space mining operations.</p>
+                <div class="play-button">Begin Harvest</div>
+            </div>
+        </div>
+        <div class="empty-msg" id="emptyMsg">No missions match your search...</div>
+    </div>
+    
+    <div class="achievements-panel" id="achievementsPanel">
+        <button class="close-ach" id="closeAch">✕</button>
+        <h4>MISSION LOG</h4>
+        <ul class="achievements-list" id="achList"></ul>
+        <div class="stats-row">
+            <div class="stat-box"><strong id="statGames">0</strong><span>Games Played</span></div>
+            <div class="stat-box"><strong id="statScores">0</strong><span>High Scores</span></div>
+            <div class="stat-box"><strong id="statUnlocks">0</strong><span>Unlocks</span></div>
+        </div>
+    </div>
+    
+    <div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" aria-hidden="true">
+        <div class="modal" id="modal">
+            <button class="close-modal" id="closeModal">✕</button>
+            <h2 id="modalTitle"></h2>
+            <div class="tagline" id="modalTagline"></div>
+            <div class="meta" id="modalMeta"></div>
+            <hr />
+            <p id="modalDesc" style="line-height:1.6; color:rgba(255,255,255,0.8);"></p>
+            <div style="display:flex; gap:16px; flex-wrap:wrap; margin-top:18px;">
+                <button class="launch-btn" id="launchBtn">Launch Mission</button>
+                <button class="toggle" id="favoriteBtn">☆ Favorite</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const storage = { get:(k,f)=>{ try{return JSON.parse(localStorage.getItem(k))??f;}catch(e){return f;} }, set:(k,v)=>localStorage.setItem(k,JSON.stringify(v)) };
+        function createStarfield(){ const starfield=document.getElementById('starfield'); for(let i=0;i<200;i++){ const s=document.createElement('div'); s.className='star'; s.style.left=Math.random()*100+'%'; s.style.top=Math.random()*100+'%'; const size=Math.random()*2+1; s.style.width=size+'px'; s.style.height=size+'px'; s.style.animationDelay=Math.random()*3+'s'; starfield.appendChild(s);} }
+        window.addEventListener('load', ()=>{ createStarfield(); initSearch(); initModal(); initAchievements(); initToggles(); updatePowerBars(); setInterval(updatePowerBars,3000); });
+        function updatePowerBars(){ document.querySelectorAll('.power-fill').forEach(b=>{ b.style.height=(Math.random()*60+20)+'%'; }); }
+        document.addEventListener('mouseover',e=>{ const c=e.target.closest('.game-card'); if(c) c.style.transform='translateY(-10px) scale(1.02)'; });
+        document.addEventListener('mouseout',e=>{ const c=e.target.closest('.game-card'); if(c) c.style.transform=''; });
+        function initSearch(){ const input=document.getElementById('searchInput'); const filters=document.querySelectorAll('.filter-btn'); input.addEventListener('input',filter); filters.forEach(f=>f.addEventListener('click',()=>{filters.forEach(x=>x.classList.remove('active')); f.classList.add('active'); filter(); })); }
+        function filter(){ const term=document.getElementById('searchInput').value.toLowerCase(); const active=document.querySelector('.filter-btn.active').dataset.filter.toLowerCase(); let visible=0; document.querySelectorAll('.game-card').forEach(card=>{ const tags=(card.dataset.tags||'').toLowerCase(); const title=(card.dataset.title||'').toLowerCase(); const okTerm=!term||tags.includes(term)||title.includes(term); const okFilter=active==='all'||tags.includes(active); if(okTerm&&okFilter){ card.style.display=''; visible++; } else card.style.display='none'; }); document.getElementById('emptyMsg').style.display=visible?'none':'block'; }
+        const meta={ 'SPACE DEFENDER':['Defend frontier outposts','Pilot defense systems to repel waves. Upgrade patterns and timing.'], 'SERPENT PROTOCOL':['Advanced navigation drill','Refine directional control in tight corridors while optimizing route efficiency.'], 'QUANTUM TARGETS':['Precision anomaly neutralization','Target and neutralize unstable anomalies before cascade reactions.'], 'NEURAL LINK':['Cognitive pattern enhancement','Improve memory retention linking symbols across neural grids.'], 'GRAVITY BALL':['Orbital projectile mastery','Calibrate arcs under variable gravity fields to perfect accuracy.'], 'STELLAR HARVEST':['Resource extraction protocol','Harvest stellar fragments while avoiding volatile debris.'] };
+        let launchHref=null; function openModal(ev,href){ ev.stopPropagation(); const card=ev.currentTarget; const title=card.dataset.title; const m=meta[title]||['Classified','Details unavailable']; launchHref=href; qs('#modalTitle').textContent=title; qs('#modalTagline').textContent=m[0]; qs('#modalDesc').textContent=m[1]; qs('#modalMeta').innerHTML=card.dataset.tags.split(' ').map(t=>`<span class='pill'>${t}</span>`).join(''); const favs=storage.get('favorites',[]); const fBtn=qs('#favoriteBtn'); if(favs.includes(title)){ fBtn.classList.add('on'); fBtn.textContent='★ Favorited'; } else { fBtn.classList.remove('on'); fBtn.textContent='☆ Favorite'; } qs('#modalOverlay').style.display='flex'; }
+        function closeModal(){ qs('#modalOverlay').style.display='none'; }
+        function initModal(){ qs('#closeModal').addEventListener('click',closeModal); qs('#modalOverlay').addEventListener('click',e=>{ if(e.target.id==='modalOverlay') closeModal(); }); qs('#launchBtn').addEventListener('click',()=>{ recordPlay(); location.href=launchHref; }); qs('#favoriteBtn').addEventListener('click',()=>{ const title=qs('#modalTitle').textContent; const favs=storage.get('favorites',[]); const i=favs.indexOf(title); if(i>=0) favs.splice(i,1); else favs.push(title); storage.set('favorites',favs); openModal({stopPropagation:()=>{}, currentTarget:document.querySelector(`[data-title='${title}']`)},launchHref); }); document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); }); }
+        const achDefs=[ ['first_play','First Launch',s=>s.games>=1], ['five_games','Simulator Regular',s=>s.games>=5], ['ten_games','Veteran Operator',s=>s.games>=10], ['fav_one','Designation Favorited',s=>s.favs>=1], ['all_fav','Fleet Curator',s=>s.favs>=6] ];
+        function stats(){ return { games:storage.get('gamesPlayed',0), favs:storage.get('favorites',[]).length, unlocks:storage.get('unlocks',[]) }; }
+        function recordPlay(){ storage.set('gamesPlayed',stats().games+1); checkAch(); renderAch(); }
+        function checkAch(){ const s=stats(); let u=storage.get('unlocks',[]); achDefs.forEach(([id,name,cond])=>{ if(!u.includes(id)&&cond(s)){ u.push(id); toast('Achievement: '+name); } }); storage.set('unlocks',u); }
+        function renderAch(){ const s=stats(); const list=qs('#achList'); list.innerHTML=''; achDefs.forEach(([id,name])=>{ const li=document.createElement('li'); if(s.unlocks.includes(id)) li.classList.add('unlocked'); li.innerHTML=`<span class='badge'>${s.unlocks.includes(id)?'✓':'?'}</span> ${name}`; list.appendChild(li); }); qs('#statGames').textContent=s.games; qs('#statUnlocks').textContent=s.unlocks.length; qs('#statScores').textContent=Object.keys(storage.get('highScores',{})).length; }
+        function initAchievements(){ qs('#closeAch').addEventListener('click',()=>qs('#achievementsPanel').style.display='none'); renderAch(); }
+        function initToggles(){ const a=qs('#audioToggle'); const t=qs('#themeToggle'); const h=qs('#achToggle'); a.addEventListener('click',()=>{a.classList.toggle('on'); a.textContent=a.classList.contains('on')?'Audio ON':'Audio OFF';}); t.addEventListener('click',()=>{t.classList.toggle('on'); document.body.classList.toggle('alt-theme'); t.textContent=t.classList.contains('on')?'Core Theme':'Nebula Theme'; toggleTheme();}); h.addEventListener('click',()=>{h.classList.toggle('on'); qs('#achievementsPanel').style.display=h.classList.contains('on')?'block':'none';}); }
+        function toggleTheme(){ if(document.body.classList.contains('alt-theme')){ document.body.style.background='radial-gradient(circle at 30% 30%, #120025, #02040a 70%)'; } else { document.body.style.background='radial-gradient(ellipse at center, #0f1419 0%, #020408 70%, #000000 100%)'; } }
+        function toast(msg){ const el=document.createElement('div'); Object.assign(el.style,{position:'fixed',bottom:'-60px',left:'50%',transform:'translateX(-50%)',padding:'12px 22px',background:'linear-gradient(45deg,#00d4ff,#0099cc)',color:'#000',fontWeight:'700',fontFamily:'Rajdhani',letterSpacing:'1px',borderRadius:'30px',boxShadow:'0 0 18px rgba(0,212,255,0.5)',zIndex:1200,transition:'bottom .6s, opacity .6s'}); el.textContent=msg; document.body.appendChild(el); requestAnimationFrame(()=>el.style.bottom='30px'); setTimeout(()=>{el.style.bottom='-60px'; el.style.opacity='0';},2600); setTimeout(()=>el.remove(),3400); }
+        const qs=s=>document.querySelector(s);
+    </script>
+</body>
+</html>
+
