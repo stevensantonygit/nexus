@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Bubbles - Space Mode</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Orbitron', 'Arial', sans-serif;
+            background: radial-gradient(ellipse at center, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+            color: #00d4ff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(2px 2px at 20px 30px, #00d4ff, transparent),
+                radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.3), transparent),
+                radial-gradient(1px 1px at 90px 40px, #00d4ff, transparent),
+                radial-gradient(1px 1px at 130px 80px, rgba(255,255,255,0.3), transparent),
+                radial-gradient(2px 2px at 160px 30px, #00d4ff, transparent);
+            background-repeat: repeat;
+            background-size: 200px 100px;
+            animation: starMove 20s linear infinite;
+            opacity: 0.6;
+            z-index: 1;
+        }
+        
+        @keyframes starMove {
+            from { transform: translateY(0px); }
+            to { transform: translateY(-100px); }
+        }
+
+        .game-container {
+            position: relative;
+            border: 3px solid #00d4ff;
+            border-radius: 15px;
+            box-shadow: 0 0 50px rgba(0, 212, 255, 0.4), inset 0 0 20px rgba(0, 212, 255, 0.1);
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 10;
+        }
+
+        .game-ui {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            justify-content: space-between;
+            z-index: 100;
+            font-size: 18px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        .score, .level, .bubbles {
+            padding: 8px 20px;
+            background: rgba(0, 0, 0, 0.9);
+            border-radius: 25px;
+            border: 2px solid #00d4ff;
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+            color: #00d4ff;
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+
+        #gameCanvas {
+            display: block;
+            background: linear-gradient(180deg, #0a0a1a 0%, #1a1a2e 50%, #2a2a4e 100%);
+            border-radius: 10px;
+            cursor: crosshair;
+        }
+
+        .start-screen {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            background: rgba(0, 0, 0, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            border: 3px solid #00d4ff;
+            box-shadow: 0 0 50px rgba(0, 212, 255, 0.6);
+            z-index: 200;
+        }
+
+        .start-screen h1 {
+            color: #00d4ff;
+            margin-bottom: 20px;
+            font-size: 3em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8), 0 0 10px #00d4ff; }
+            to { text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8), 0 0 20px #00d4ff, 0 0 30px #00d4ff; }
+        }
+
+        .easy-mode {
+            background: linear-gradient(45deg, #00ff88, #00cc6a);
+            color: #000;
+            padding: 8px 20px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 20px;
+            font-weight: bold;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
+            text-shadow: none;
+        }
+
+        button {
+            background: linear-gradient(45deg, #00d4ff, #0099cc);
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+            margin: 10px;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        button:hover {
+            background: linear-gradient(45deg, #0099cc, #00d4ff);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4);
+        }
+
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(45deg, #00d4ff, #0099cc);
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+            z-index: 1000;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .back-button:hover {
+            background: linear-gradient(45deg, #0099cc, #00d4ff);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4);
+        }
+
+        .controls {
+            margin-top: 20px;
+            text-align: center;
+            color: #00d4ff;
+            font-size: 16px;
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+
+        .combo {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2em;
+            font-weight: bold;
+            color: #00ff88;
+            text-shadow: 0 0 20px #00ff88;
+            z-index: 1000;
+            animation: comboAnimation 1s ease-out forwards;
+            pointer-events: none;
+        }
+
+        @keyframes comboAnimation {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1) translateY(-50px); }
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-button">🚀 Back to Station</a>
+    
+    <div class="game-container">
+        <div class="game-ui">
+            <div class="score">Score: <span id="score">0</span></div>
+            <div class="bubbles">Energy Orbs: <span id="bubbleCount">0</span></div>
+            <div class="level">Sector: <span id="level">1</span></div>
+        </div>
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        <div class="start-screen" id="startScreen">
+            <h1>🌌 QUANTUM BUBBLES</h1>
+            <div class="easy-mode">SPACE TRAINING MODE</div>
+            <p>Collect quantum energy orbs in zero gravity!</p>
+            <p>✨ Large energy orbs ✨ Gentle movement ✨ Cosmic effects ✨</p>
+            <button onclick="startGame()">Launch Mission</button>
+            <button onclick="window.location.href='index.html'">🚀 Back to Station</button>
+        </div>
+    </div>
+    <div class="controls">
+        <p>Controls: Click or Tap on energy orbs to collect them!</p>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let gameRunning = false;
+        let score = 0;
+        let level = 1;
+        let bubbles = [];
+        let particles = [];
+        let comboCount = 0;
+        let comboTimer = 0;
+
+        canvas.addEventListener('click', handleClick);
+        canvas.addEventListener('touchstart', handleTouch);
+
+        function handleClick(event) {
+            if (!gameRunning) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            
+            checkBubbleClick(x, y);
+        }
+
+        function handleTouch(event) {
+            event.preventDefault();
+            if (!gameRunning) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const touch = event.touches[0];
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+            
+            checkBubbleClick(x, y);
+        }
+
+        function checkBubbleClick(x, y) {
+            for (let i = bubbles.length - 1; i >= 0; i--) {
+                const bubble = bubbles[i];
+                const distance = Math.sqrt((x - bubble.x) * (x - bubble.x) + (y - bubble.y) * (y - bubble.y));
+                
+                if (distance < bubble.radius) {
+                    popBubble(i);
+                    break;
+                }
+            }
+        }
+
+        function startGame() {
+            gameRunning = true;
+            score = 0;
+            level = 1;
+            bubbles = [];
+            particles = [];
+            comboCount = 0;
+            
+            document.getElementById('startScreen').style.display = 'none';
+            
+            updateUI();
+            gameLoop();
+        }
+
+        function gameLoop() {
+            if (!gameRunning) return;
+            
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        function update() {
+
+            if (Math.random() < 0.02 + level * 0.005) {
+                spawnBubble();
+            }
+
+            bubbles.forEach((bubble, index) => {
+                bubble.x += bubble.vx;
+                bubble.y += bubble.vy;
+                bubble.age++;
+                bubble.glow += bubble.glowDirection * 0.02;
+                
+                if (bubble.glow > 1) {
+                    bubble.glow = 1;
+                    bubble.glowDirection = -1;
+                } else if (bubble.glow < 0.3) {
+                    bubble.glow = 0.3;
+                    bubble.glowDirection = 1;
+                }
+
+                if (bubble.x - bubble.radius < 0 || bubble.x + bubble.radius > canvas.width) {
+                    bubble.vx *= -1;
+                }
+                if (bubble.y - bubble.radius < 0 || bubble.y + bubble.radius > canvas.height) {
+                    bubble.vy *= -1;
+                }
+
+                bubble.x = Math.max(bubble.radius, Math.min(canvas.width - bubble.radius, bubble.x));
+                bubble.y = Math.max(bubble.radius, Math.min(canvas.height - bubble.radius, bubble.y));
+
+                if (bubble.age > 1200) { // Even longer lifetime for easier gameplay
+                    bubbles.splice(index, 1);
+                }
+            });
+
+            particles.forEach((particle, index) => {
+                particle.x += particle.vx;
+                particle.y += particle.vy;
+                particle.vy += 0.05; // gentle gravity
+                particle.life--;
+                particle.alpha = particle.life / particle.maxLife;
+                
+                if (particle.life <= 0) {
+                    particles.splice(index, 1);
+                }
+            });
+
+            if (comboTimer > 0) {
+                comboTimer--;
+                if (comboTimer === 0) {
+                    comboCount = 0;
+                }
+            }
+
+            if (score > level * 500) {
+                level++;
+                showCombo(`SECTOR ${level} UNLOCKED!`);
+            }
+            
+            updateUI();
+        }
+
+        function draw() {
+
+            const gradient = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 0, 
+                                                    canvas.width/2, canvas.height/2, canvas.width/2);
+            gradient.addColorStop(0, '#1a1a2e');
+            gradient.addColorStop(0.5, '#16213e');
+            gradient.addColorStop(1, '#0f0f23');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            drawNebulaEffects();
+
+            bubbles.forEach(bubble => {
+                drawEnergyOrb(bubble);
+            });
+
+            particles.forEach(particle => {
+                ctx.save();
+                ctx.globalAlpha = particle.alpha;
+                ctx.fillStyle = particle.color;
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = particle.color;
+                ctx.fillRect(particle.x, particle.y, particle.size, particle.size);
+                ctx.restore();
+            });
+        }
+
+        function drawEnergyOrb(bubble) {
+            ctx.save();
+
+            const gradient = ctx.createRadialGradient(
+                bubble.x - bubble.radius * 0.3, bubble.y - bubble.radius * 0.3, 0,
+                bubble.x, bubble.y, bubble.radius
+            );
+            gradient.addColorStop(0, `rgba(255, 255, 255, ${bubble.glow})`);
+            gradient.addColorStop(0.4, bubble.color);
+            gradient.addColorStop(1, 'rgba(0, 0, 0, 0.6)');
+
+            ctx.globalCompositeOperation = 'screen';
+            ctx.fillStyle = bubble.color;
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = bubble.color;
+            ctx.beginPath();
+            ctx.arc(bubble.x, bubble.y, bubble.radius + 5, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.shadowBlur = 0;
+
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(bubble.x, bubble.y, bubble.radius, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = `rgba(255, 255, 255, ${bubble.glow * 0.8})`;
+            ctx.beginPath();
+            ctx.arc(bubble.x - bubble.radius * 0.3, bubble.y - bubble.radius * 0.3, bubble.radius * 0.2, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.strokeStyle = bubble.color;
+            ctx.lineWidth = 2;
+            ctx.globalAlpha = bubble.glow * 0.5;
+            ctx.beginPath();
+            ctx.arc(bubble.x, bubble.y, bubble.radius + 10, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            ctx.restore();
+        }
+
+        function drawNebulaEffects() {
+            ctx.save();
+            ctx.globalAlpha = 0.15;
+            
+            for (let i = 0; i < 3; i++) {
+                const x = (Date.now() * 0.0002 + i * 250) % (canvas.width + 150);
+                const y = (Date.now() * 0.0001 + i * 200) % (canvas.height + 150);
+                const size = 30 + i * 20;
+                
+                const colors = ['#00d4ff', '#ff6b9d', '#a0e7e5'];
+                ctx.fillStyle = colors[i];
+                ctx.shadowBlur = 30;
+                ctx.shadowColor = colors[i];
+                ctx.beginPath();
+                ctx.arc(x, y, size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            ctx.restore();
+        }
+
+        function spawnBubble() {
+            const colors = [
+                'rgba(0, 212, 255, 0.8)',
+                'rgba(255, 107, 157, 0.8)',
+                'rgba(160, 231, 229, 0.8)',
+                'rgba(255, 215, 0, 0.8)',
+                'rgba(138, 43, 226, 0.8)',
+                'rgba(0, 255, 136, 0.8)'
+            ];
+            
+            bubbles.push({
+                x: Math.random() * (canvas.width - 100) + 50,
+                y: Math.random() * (canvas.height - 100) + 50,
+                radius: 35 + Math.random() * 25, // Even bigger for easier clicking
+                vx: (Math.random() - 0.5) * 1.5, // Slower movement
+                vy: (Math.random() - 0.5) * 1.5,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                age: 0,
+                glow: 0.5,
+                glowDirection: 1
+            });
+        }
+
+        function popBubble(index) {
+            const bubble = bubbles[index];
+
+            for (let i = 0; i < 15; i++) {
+                particles.push({
+                    x: bubble.x,
+                    y: bubble.y,
+                    vx: (Math.random() - 0.5) * 6,
+                    vy: (Math.random() - 0.5) * 6 - 2,
+                    size: 2 + Math.random() * 4,
+                    color: bubble.color,
+                    life: 40,
+                    maxLife: 40,
+                    alpha: 1
+                });
+            }
+
+            comboCount++;
+            comboTimer = 90; // Reset combo timer
+            const points = 15 * comboCount;
+            score += points;
+
+            if (comboCount > 1) {
+                showCombo(`QUANTUM COMBO x${comboCount}! +${points}`);
+            }
+
+            bubbles.splice(index, 1);
+
+            if (Math.random() < 0.8) {
+                spawnBubble();
+            }
+        }
+
+        function showCombo(text) {
+            const comboElement = document.createElement('div');
+            comboElement.className = 'combo';
+            comboElement.textContent = text;
+            document.body.appendChild(comboElement);
+            
+            setTimeout(() => {
+                if (document.body.contains(comboElement)) {
+                    document.body.removeChild(comboElement);
+                }
+            }, 1000);
+        }
+
+        function updateUI() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('bubbleCount').textContent = bubbles.length;
+            document.getElementById('level').textContent = level;
+        }
+
+        for (let i = 0; i < 6; i++) {
+            spawnBubble();
+        }
+    </script>
+</body>
+</html>
+
