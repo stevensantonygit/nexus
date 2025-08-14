@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neural Memory - Space Mode</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Orbitron', 'Arial', sans-serif;
+            background: radial-gradient(ellipse at center, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+            color: #00d4ff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(2px 2px at 20px 30px, #00d4ff, transparent),
+                radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.3), transparent),
+                radial-gradient(1px 1px at 90px 40px, #00d4ff, transparent),
+                radial-gradient(1px 1px at 130px 80px, rgba(255,255,255,0.3), transparent),
+                radial-gradient(2px 2px at 160px 30px, #00d4ff, transparent);
+            background-repeat: repeat;
+            background-size: 200px 100px;
+            animation: starMove 20s linear infinite;
+            opacity: 0.6;
+            z-index: 1;
+        }
+        
+        @keyframes starMove {
+            from { transform: translateY(0px); }
+            to { transform: translateY(-100px); }
+        }
+
+        .game-container {
+            text-align: center;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 20px;
+            padding: 30px;
+            border: 3px solid #00d4ff;
+            box-shadow: 0 0 50px rgba(0, 212, 255, 0.4);
+            z-index: 10;
+            position: relative;
+        }
+
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(45deg, #00d4ff, #0099cc);
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+            z-index: 1000;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .back-button:hover {
+            background: linear-gradient(45deg, #0099cc, #00d4ff);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4);
+        }
+
+        .game-ui {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .stat {
+            padding: 10px 20px;
+            background: rgba(0, 0, 0, 0.9);
+            border-radius: 25px;
+            border: 2px solid #00d4ff;
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+            color: #00d4ff;
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            max-width: 600px;
+            margin: 0 auto 30px;
+        }
+
+        .memory-card {
+            aspect-ratio: 1;
+            background: linear-gradient(145deg, #1a1a2e, #2d2d4d);
+            border: 2px solid #00d4ff;
+            border-radius: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5em;
+            transition: all 0.3s ease;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.2);
+        }
+
+        .memory-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.4);
+        }
+
+        .memory-card.flipped {
+            background: linear-gradient(145deg, #00d4ff, #0099cc);
+            color: white;
+            transform: rotateY(180deg);
+        }
+
+        .memory-card.matched {
+            background: linear-gradient(145deg, #00ff88, #00cc6a);
+            border-color: #00ff88;
+            animation: matchGlow 1s ease-in-out;
+        }
+
+        @keyframes matchGlow {
+            0%, 100% { box-shadow: 0 4px 15px rgba(0, 255, 136, 0.3); }
+            50% { box-shadow: 0 8px 30px rgba(0, 255, 136, 0.8); }
+        }
+
+        .card-back {
+            color: #00d4ff;
+            font-size: 1.5em;
+        }
+
+        h1 {
+            color: #00d4ff;
+            margin-bottom: 20px;
+            font-size: 3em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8), 0 0 10px #00d4ff; }
+            to { text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8), 0 0 20px #00d4ff, 0 0 30px #00d4ff; }
+        }
+
+        .easy-mode {
+            background: linear-gradient(45deg, #00ff88, #00cc6a);
+            color: #000;
+            padding: 8px 20px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 20px;
+            font-weight: bold;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
+            text-shadow: none;
+        }
+
+        button {
+            background: linear-gradient(45deg, #00d4ff, #0099cc);
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+            margin: 10px;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        button:hover {
+            background: linear-gradient(45deg, #0099cc, #00d4ff);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4);
+        }
+
+        .start-screen {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            background: rgba(0, 0, 0, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            border: 3px solid #00d4ff;
+            box-shadow: 0 0 50px rgba(0, 212, 255, 0.6);
+            z-index: 200;
+        }
+
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            background: rgba(0, 0, 0, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            border: 3px solid #00ff88;
+            box-shadow: 0 0 50px rgba(0, 255, 136, 0.6);
+            z-index: 200;
+        }
+
+        .game-over h2 {
+            color: #00ff88;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+            text-shadow: 0 0 20px #00ff88;
+        }
+
+        .controls {
+            margin-top: 20px;
+            text-align: center;
+            color: #00d4ff;
+            font-size: 16px;
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-button">🚀 Back to Station</a>
+    
+    <div class="game-container">
+        <h1>🧠 NEURAL MEMORY</h1>
+        <div class="easy-mode">SPACE TRAINING MODE</div>
+        
+        <div class="game-ui">
+            <div class="stat">Moves: <span id="moves">0</span></div>
+            <div class="stat">Matches: <span id="matches">0</span></div>
+            <div class="stat">Time: <span id="timer">0</span>s</div>
+        </div>
+        
+        <div class="memory-grid" id="memoryGrid"></div>
+        
+        <div class="start-screen" id="startScreen">
+            <h1>🧠 NEURAL MEMORY</h1>
+            <div class="easy-mode">SPACE TRAINING MODE</div>
+            <p>Test your memory with cosmic symbols!</p>
+            <p>✨ Large symbols ✨ Easy patterns ✨ Neural enhancement ✨</p>
+            <button onclick="startGame()">Activate Neural Link</button>
+            <button onclick="window.location.href='index.html'">🚀 Back to Station</button>
+        </div>
+        
+        <div class="game-over" id="gameOver" style="display: none;">
+            <h2>Mission Complete!</h2>
+            <p>Neural link successful!</p>
+            <p>Moves: <span id="finalMoves">0</span></p>
+            <p>Time: <span id="finalTime">0</span>s</p>
+            <button onclick="startGame()">New Neural Session</button>
+            <button onclick="window.location.href='index.html'">🚀 Back to Station</button>
+        </div>
+    </div>
+    
+    <div class="controls">
+        <p>Controls: Click on memory cards to flip them and find matching pairs!</p>
+    </div>
+
+    <script>
+        let gameStarted = false;
+        let moves = 0;
+        let matches = 0;
+        let timer = 0;
+        let timerInterval;
+        let flippedCards = [];
+        let matchedPairs = 0;
+
+        const symbols = ['🚀', '👽', '🛸', '⭐', '🌟', '🌌', '🔆', '⚡'];
+        let cards = [];
+
+        function startGame() {
+            gameStarted = true;
+            moves = 0;
+            matches = 0;
+            timer = 0;
+            matchedPairs = 0;
+            flippedCards = [];
+            
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('gameOver').style.display = 'none';
+            
+            generateCards();
+            updateUI();
+            startTimer();
+        }
+
+        function generateCards() {
+
+            cards = [];
+            const cardPairs = [...symbols, ...symbols]; // Duplicate symbols
+
+            for (let i = cardPairs.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [cardPairs[i], cardPairs[j]] = [cardPairs[j], cardPairs[i]];
+            }
+            
+            const grid = document.getElementById('memoryGrid');
+            grid.innerHTML = '';
+            
+            cardPairs.forEach((symbol, index) => {
+                const card = document.createElement('div');
+                card.className = 'memory-card';
+                card.dataset.symbol = symbol;
+                card.dataset.index = index;
+                card.innerHTML = '<div class="card-back">🌀</div>';
+                card.addEventListener('click', () => flipCard(card));
+                grid.appendChild(card);
+                cards.push({
+                    element: card,
+                    symbol: symbol,
+                    flipped: false,
+                    matched: false
+                });
+            });
+        }
+
+        function flipCard(cardElement) {
+            if (!gameStarted) return;
+            
+            const cardIndex = parseInt(cardElement.dataset.index);
+            const card = cards[cardIndex];
+            
+            if (card.flipped || card.matched || flippedCards.length >= 2) {
+                return;
+            }
+
+            card.flipped = true;
+            cardElement.classList.add('flipped');
+            cardElement.innerHTML = card.symbol;
+            flippedCards.push(card);
+            
+            if (flippedCards.length === 2) {
+                moves++;
+                checkMatch();
+            }
+            
+            updateUI();
+        }
+
+        function checkMatch() {
+            const [card1, card2] = flippedCards;
+            
+            setTimeout(() => {
+                if (card1.symbol === card2.symbol) {
+
+                    card1.matched = true;
+                    card2.matched = true;
+                    card1.element.classList.add('matched');
+                    card2.element.classList.add('matched');
+                    matchedPairs++;
+                    matches++;
+
+                    if (matchedPairs === symbols.length) {
+                        endGame();
+                    }
+                } else {
+
+                    card1.flipped = false;
+                    card2.flipped = false;
+                    card1.element.classList.remove('flipped');
+                    card2.element.classList.remove('flipped');
+                    card1.element.innerHTML = '<div class="card-back">🌀</div>';
+                    card2.element.innerHTML = '<div class="card-back">🌀</div>';
+                }
+                
+                flippedCards = [];
+                updateUI();
+            }, 1000);
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timer++;
+                updateUI();
+            }, 1000);
+        }
+
+        function endGame() {
+            gameStarted = false;
+            clearInterval(timerInterval);
+            
+            document.getElementById('finalMoves').textContent = moves;
+            document.getElementById('finalTime').textContent = timer;
+            document.getElementById('gameOver').style.display = 'block';
+        }
+
+        function updateUI() {
+            document.getElementById('moves').textContent = moves;
+            document.getElementById('matches').textContent = matches;
+            document.getElementById('timer').textContent = timer;
+        }
+    </script>
+</body>
+</html>
+
