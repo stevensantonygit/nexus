@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gravity Training - Space Mode</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Orbitron', 'Arial', sans-serif;
+            background: radial-gradient(ellipse at center, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+            color: #00d4ff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(2px 2px at 20px 30px, #00d4ff, transparent),
+                radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.3), transparent),
+                radial-gradient(1px 1px at 90px 40px, #00d4ff, transparent),
+                radial-gradient(1px 1px at 130px 80px, rgba(255,255,255,0.3), transparent),
+                radial-gradient(2px 2px at 160px 30px, #00d4ff, transparent);
+            background-repeat: repeat;
+            background-size: 200px 100px;
+            animation: starMove 20s linear infinite;
+            opacity: 0.6;
+            z-index: 1;
+        }
+        
+        @keyframes starMove {
+            from { transform: translateY(0px); }
+            to { transform: translateY(-100px); }
+        }
+
+        .game-container {
+            position: relative;
+            border: 3px solid #00d4ff;
+            border-radius: 15px;
+            box-shadow: 0 0 50px rgba(0, 212, 255, 0.4), inset 0 0 20px rgba(0, 212, 255, 0.1);
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 10;
+        }
+
+        .game-ui {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            justify-content: space-between;
+            z-index: 100;
+            font-size: 18px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        .score, .shots, .streak {
+            padding: 8px 20px;
+            background: rgba(0, 0, 0, 0.9);
+            border-radius: 25px;
+            border: 2px solid #00d4ff;
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+            color: #00d4ff;
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+
+        #gameCanvas {
+            display: block;
+            background: linear-gradient(180deg, #0a0a1a 0%, #1a1a2e 50%, #2a2a4e 100%);
+            border-radius: 10px;
+            cursor: crosshair;
+            width: 1000px;
+            height: 700px;
+        }
+
+        .start-screen {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            background: rgba(0, 0, 0, 0.95);
+            padding: 50px;
+            border-radius: 20px;
+            border: 3px solid #00d4ff;
+            box-shadow: 0 0 50px rgba(0, 212, 255, 0.4);
+            z-index: 200;
+        }
+
+        .start-screen h1 {
+            color: #00d4ff;
+            margin-bottom: 30px;
+            font-size: 3.5em;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.8);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 20px rgba(0, 212, 255, 0.8); }
+            to { text-shadow: 0 0 30px rgba(0, 212, 255, 1), 0 0 40px rgba(0, 212, 255, 0.8); }
+        }
+
+        button {
+            background: linear-gradient(45deg, #00d4ff, #0066cc);
+            border: 2px solid #00d4ff;
+            color: white;
+            padding: 18px 35px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 15px;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.6);
+            background: linear-gradient(45deg, #0066cc, #00d4ff);
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+        }
+
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(45deg, #4a4a8a, #6a6aaa);
+            border: 2px solid #8a8aff;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            z-index: 20;
+            box-shadow: 0 0 15px rgba(138, 138, 255, 0.3);
+        }
+
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(138, 138, 255, 0.5);
+        }
+
+        .easy-mode {
+            background: linear-gradient(45deg, #00ff88, #00cc66);
+            color: #003311;
+            padding: 8px 20px;
+            border-radius: 25px;
+            display: inline-block;
+            margin-bottom: 20px;
+            font-weight: bold;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
+            text-shadow: none;
+        }
+
+        .controls {
+            margin-top: 20px;
+            text-align: center;
+            color: #00d4ff;
+            font-size: 16px;
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+
+        .power-meter {
+            position: absolute;
+            bottom: 30px;
+            left: 30px;
+            width: 35px;
+            height: 300px;
+            background: rgba(0, 0, 0, 0.9);
+            border-radius: 20px;
+            border: 3px solid #00d4ff;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.5);
+        }
+
+        .power-fill {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: linear-gradient(to top, #0066ff, #00aaff, #00ffff);
+            transition: height 0.3s ease, background 0.5s ease;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
+        }
+        
+        .power-meter::before {
+            content: 'TEMP';
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #00d4ff;
+            font-size: 12px;
+            font-weight: bold;
+            text-shadow: 0 0 8px rgba(0, 212, 255, 1);
+            letter-spacing: 1px;
+        }
+        
+        .power-meter::after {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 8px;
+            height: 8px;
+            background: #ff4400;
+            border-radius: 50%;
+            animation: pulse 1s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; transform: translateX(-50%) scale(1); }
+            50% { opacity: 1; transform: translateX(-50%) scale(1.2); }
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-button">🚀 Back to Station</a>
+    
+    <div class="game-container">
+        <div class="game-ui">
+            <div class="score">Score: <span id="score">0</span></div>
+            <div class="shots">Shots: <span id="shots">0</span></div>
+            <div class="streak">Streak: <span id="streak">0</span></div>
+        </div>
+        <canvas id="gameCanvas" width="1000" height="700"></canvas>
+        <div class="power-meter">
+            <div class="power-fill" id="powerFill"></div>
+        </div>
+        <div class="start-screen" id="startScreen">
+            <h1>🚀 GRAVITY TRAINING</h1>
+            <div class="easy-mode">SPACE TRAINING MODE</div>
+            <p>Master gravity manipulation in zero-G training!</p>
+            <p>✨ Predictable temperature zones ✨ Skill-based timing ✨ Space environment ✨</p>
+            <p style="font-size: 14px; margin-top: 15px; opacity: 0.8;">
+                🌡️ Green zone (70-85%) = OPTIMAL power & accuracy! Time your shots perfectly!
+            </p>
+            <button onclick="startGame()">Start Game</button>
+            <button onclick="window.location.href='index.html'">🚀 Back to Station</button>
+        </div>
+    </div>
+    <div class="controls">
+        <p>Controls: Click and drag near the energy sphere to aim, release to launch!</p>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let gameRunning = false;
+        let score = 0;
+        let shots = 0;
+        let streak = 0;
+        let ball = null;
+        let isDragging = false;
+        let dragStart = { x: 0, y: 0 };
+        let dragEnd = { x: 0, y: 0 };
+        let particles = [];
+        let temperatureLevel = 50; // Temperature system (0-100)
+        let temperatureDirection = 1; // 1 for up, -1 for down
+        let temperatureSpeed = 0.5; // How fast temperature changes
+
+        const hoop = {
+
+            x: canvas.width - 150,
+            y: 150,
+            width: 100,
+            height: 10,
+            rim: { left: canvas.width - 150, right: canvas.width - 50, y: 150, radius: 5 },
+            backboard: {
+                x: canvas.width - 90,
+                y: 70,
+                width: 15,
+                height: 100,
+                topBarHeight: 8
+            }
+        };
+
+        const ballStart = { x: 100, y: canvas.height - 100 };
+
+        canvas.addEventListener('mousedown', startDrag);
+        canvas.addEventListener('mousemove', updateDrag);
+        canvas.addEventListener('mouseup', shoot);
+
+        canvas.addEventListener('touchstart', handleTouch);
+        canvas.addEventListener('touchmove', handleTouch);
+        canvas.addEventListener('touchend', handleTouch);
+
+        function handleTouch(event) {
+            event.preventDefault();
+            const touch = event.touches[0] || event.changedTouches[0];
+            const rect = canvas.getBoundingClientRect();
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+
+            if (event.type === 'touchstart') {
+                if (!gameRunning || ball) return;
+
+                const distance = Math.sqrt(
+                    Math.pow(x - ballStart.x, 2) + 
+                    Math.pow(y - ballStart.y, 2)
+                );
+                
+                if (distance < 50) {
+                    dragStart.x = x;
+                    dragStart.y = y;
+                    isDragging = true;
+                }
+            } else if (event.type === 'touchmove') {
+                if (!isDragging) return;
+                dragEnd.x = x;
+                dragEnd.y = y;
+                updatePowerMeter();
+            } else if (event.type === 'touchend') {
+                if (!isDragging || !gameRunning) return;
+                
+                dragEnd.x = x;
+                dragEnd.y = y;
+
+                const deltaX = dragEnd.x - dragStart.x;
+                const deltaY = dragEnd.y - dragStart.y;
+                const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+                if (distance < 15) {
+                    isDragging = false;
+                    return;
+                }
+
+                const tempMultiplier = getTemperatureMultiplier();
+                const accuracy = getTemperatureAccuracy();
+
+                const basePower = Math.min(distance / 120, 1.4); // reduced scaling
+                const finalPower = basePower * tempMultiplier;
+
+                let baseVelocityX = (deltaX / 120) * 9; // Horizontal velocity (tuned)
+                let baseVelocityY = (deltaY / 120) * 9; // Vertical velocity (tuned)
+
+                const finalVelocityX = baseVelocityX * tempMultiplier;
+                const finalVelocityY = baseVelocityY * tempMultiplier;
+
+                const randomOffsetX = (Math.random() - 0.5) * accuracy * 3;
+                const randomOffsetY = (Math.random() - 0.5) * accuracy * 3;
+                
+                ball = {
+                    x: ballStart.x,
+                    y: ballStart.y,
+                    vx: finalVelocityX + randomOffsetX,
+                    vy: finalVelocityY + randomOffsetY,
+                    radius: 15,
+                    bounced: false,
+                    scored: false,
+                    temperature: temperatureLevel
+                };
+                
+                shots++;
+                isDragging = false;
+                createShotParticles();
+            }
+        }
+
+        function startDrag(event) {
+            if (!gameRunning || ball) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = event.clientX - rect.left;
+            const mouseY = event.clientY - rect.top;
+
+            const distance = Math.sqrt(
+                Math.pow(mouseX - ballStart.x, 2) + 
+                Math.pow(mouseY - ballStart.y, 2)
+            );
+            
+            if (distance < 50) { // Within 50 pixels of the ball
+                dragStart.x = mouseX;
+                dragStart.y = mouseY;
+                isDragging = true;
+            }
+        }
+
+        function updateDrag(event) {
+            if (!isDragging) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            dragEnd.x = event.clientX - rect.left;
+            dragEnd.y = event.clientY - rect.top;
+            
+            updatePowerMeter();
+        }
+
+        function shoot(event) {
+            if (!isDragging || !gameRunning) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            dragEnd.x = event.clientX - rect.left;
+            dragEnd.y = event.clientY - rect.top;
+
+            const deltaX = dragEnd.x - dragStart.x;
+            const deltaY = dragEnd.y - dragStart.y;
+            const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+            if (distance < 15) {
+                isDragging = false;
+                return; // Don't count as a shot if too small
+            }
+
+            const tempMultiplier = getTemperatureMultiplier();
+            const accuracy = getTemperatureAccuracy();
+
+            const angle = Math.atan2(deltaY, deltaX);
+            const basePower = Math.min(distance / 100, 1.8); // Increased base power sensitivity
+            const finalPower = basePower * tempMultiplier;
+
+            const baseVelocityX = (deltaX / 100) * 8; // Horizontal velocity (reduced)
+            const baseVelocityY = (deltaY / 100) * 8; // Vertical velocity (reduced)
+
+            const finalVelocityX = baseVelocityX * tempMultiplier;
+            const finalVelocityY = baseVelocityY * tempMultiplier;
+
+            const randomOffsetX = (Math.random() - 0.5) * accuracy * 3;
+            const randomOffsetY = (Math.random() - 0.5) * accuracy * 3;
+            
+            ball = {
+                x: ballStart.x,
+                y: ballStart.y,
+                vx: finalVelocityX + randomOffsetX,
+                vy: finalVelocityY + randomOffsetY,
+                radius: 15,
+                bounced: false,
+                scored: false,
+                temperature: temperatureLevel // Store temperature for effects
+            };
+            
+            shots++;
+            isDragging = false;
+
+            createShotParticles();
+        }
+
+        function getTemperatureMultiplier() {
+
+            if (temperatureLevel >= 70 && temperatureLevel <= 85) {
+                return 1.5; // OPTIMAL ZONE - Best power
+            } else if (temperatureLevel >= 60 && temperatureLevel <= 90) {
+                return 1.3; // GOOD ZONE - High power
+            } else if (temperatureLevel >= 40 && temperatureLevel <= 95) {
+                return 1.1; // DECENT ZONE - Above average
+            } else if (temperatureLevel >= 20 && temperatureLevel <= 30) {
+                return 0.9; // COLD ZONE - Slightly weak
+            } else {
+                return 0.7; // EXTREME ZONES - Weak shots
+            }
+        }
+
+        function getTemperatureAccuracy() {
+
+            if (temperatureLevel >= 70 && temperatureLevel <= 85) {
+                return 0.01; // OPTIMAL ZONE - Very accurate
+            } else if (temperatureLevel >= 60 && temperatureLevel <= 90) {
+                return 0.02; // GOOD ZONE - Accurate
+            } else if (temperatureLevel >= 40 && temperatureLevel <= 95) {
+                return 0.04; // DECENT ZONE - Good accuracy
+            } else {
+                return 0.08; // EXTREME ZONES - Less accurate
+            }
+        }
+
+        function createShotParticles() {
+            const numParticles = Math.floor(temperatureLevel / 10) + 3;
+            for (let i = 0; i < numParticles; i++) {
+                particles.push({
+                    x: ballStart.x + (Math.random() - 0.5) * 30,
+                    y: ballStart.y + (Math.random() - 0.5) * 30,
+                    vx: (Math.random() - 0.5) * 4,
+                    vy: (Math.random() - 0.5) * 4,
+                    size: 2 + Math.random() * 3,
+                    color: getTemperatureColor(),
+                    life: 30,
+                    maxLife: 30,
+                    alpha: 1
+                });
+            }
+        }
+
+        function getTemperatureColor() {
+            if (temperatureLevel >= 70 && temperatureLevel <= 85) {
+                return '#00ff00'; // Optimal - Green
+            } else if (temperatureLevel >= 60 && temperatureLevel <= 90) {
+                return '#88ff00'; // Good - Yellow-green  
+            } else if (temperatureLevel >= 40 && temperatureLevel <= 95) {
+                return '#ffff00'; // Decent - Yellow
+            } else if (temperatureLevel < 25) {
+                return '#00aaff'; // Cold - Blue
+            } else {
+                return '#ff4400'; // Weak - Red
+            }
+        }
+
+        function startGame() {
+            gameRunning = true;
+            score = 0;
+            shots = 0;
+            streak = 0;
+            ball = null;
+            particles = [];
+            temperatureLevel = 50; // Start at medium temperature
+            temperatureDirection = 1;
+            temperatureSpeed = 0.8;
+            
+            document.getElementById('startScreen').style.display = 'none';
+            updateUI();
+            gameLoop();
+        }
+
+        function gameLoop() {
+            if (!gameRunning) return;
+            
+            updateTemperature();
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        function updateTemperature() {
+
+            temperatureLevel += temperatureDirection * temperatureSpeed;
+
+            if (temperatureLevel >= 90) {
+                temperatureDirection = -1;
+                temperatureSpeed = 0.8; // Consistent speed
+            } else if (temperatureLevel <= 10) {
+                temperatureDirection = 1;
+                temperatureSpeed = 0.8; // Consistent speed
+            }
+
+            temperatureLevel = Math.max(10, Math.min(90, temperatureLevel));
+
+            updateTemperatureMeter();
+        }
+
+        function updateTemperatureMeter() {
+            const powerFill = document.getElementById('powerFill');
+            powerFill.style.height = temperatureLevel + '%';
+
+            if (temperatureLevel >= 70 && temperatureLevel <= 85) {
+
+                powerFill.style.background = 'linear-gradient(to top, #00ff00, #44ff44)';
+                powerFill.style.boxShadow = '0 0 25px rgba(0, 255, 0, 1)';
+            } else if (temperatureLevel >= 60 && temperatureLevel <= 90) {
+
+                powerFill.style.background = 'linear-gradient(to top, #88ff00, #aaff44)';
+                powerFill.style.boxShadow = '0 0 20px rgba(136, 255, 0, 0.8)';
+            } else if (temperatureLevel >= 40 && temperatureLevel <= 95) {
+
+                powerFill.style.background = 'linear-gradient(to top, #ffff00, #ffaa00)';
+                powerFill.style.boxShadow = '0 0 20px rgba(255, 255, 0, 0.8)';
+            } else if (temperatureLevel < 25) {
+
+                powerFill.style.background = 'linear-gradient(to top, #0066ff, #00aaff)';
+                powerFill.style.boxShadow = '0 0 20px rgba(0, 170, 255, 0.8)';
+            } else {
+
+                powerFill.style.background = 'linear-gradient(to top, #ff4400, #ff0000)';
+                powerFill.style.boxShadow = '0 0 20px rgba(255, 68, 0, 0.8)';
+            }
+        }
+
+        function update() {
+            if (ball) {
+
+                ball.vy += 0.25; // Much more realistic gravity for easier gameplay
+                ball.vx *= 0.998; // Very minimal air resistance in space
+                ball.x += ball.vx;
+                ball.y += ball.vy;
+
+
+                    if (!ball.scored && ball.vy > 0 && ball.y - ball.radius > hoop.y - 6 && ball.y - ball.radius < hoop.y + 6) {
+                        if (ball.x >= hoop.rim.left + 8 && ball.x <= hoop.rim.right - 8) { // inner margin to avoid side clipping
+                            ball.scored = true;
+                            score += 10 + streak * 2;
+                            streak++;
+                            createScoreParticles();
+                        }
+                    }
+
+                    const checkRimPost = (rx) => {
+                        const dx = ball.x - rx;
+                        const dy = ball.y - hoop.y;
+                        const dist = Math.sqrt(dx*dx + dy*dy);
+                        const combined = ball.radius + hoop.rim.radius;
+                        if (dist < combined) {
+
+                            const nx = dx / (dist || 1);
+                            const ny = dy / (dist || 1);
+                            const overlap = combined - dist;
+                            ball.x += nx * overlap;
+                            ball.y += ny * overlap;
+
+                            const velDot = ball.vx * nx + ball.vy * ny;
+                            ball.vx -= 1.4 * velDot * nx; // energy loss
+                            ball.vy -= 1.4 * velDot * ny;
+                            ball.vx *= 0.75;
+                            ball.vy *= 0.75;
+                        }
+                    };
+                    checkRimPost(hoop.rim.left);
+                    checkRimPost(hoop.rim.right);
+
+                    const bb = hoop.backboard;
+
+                    if (ball.x + ball.radius > bb.x && ball.x - ball.radius < bb.x + bb.width &&
+                        ball.y + ball.radius > bb.y && ball.y - ball.radius < bb.y + bb.height) {
+
+                        const prevX = ball.x - ball.vx; // approximate previous position
+                        if (prevX + ball.radius <= bb.x) {
+
+                            ball.x = bb.x - ball.radius;
+                            ball.vx *= -0.4;
+                        } else {
+
+                            ball.x = bb.x + bb.width + ball.radius;
+                            ball.vx *= -0.5;
+                        }
+                    }
+
+                    const topBarY1 = bb.y;
+                    const topBarY2 = bb.y + bb.topBarHeight;
+                    if (ball.x + ball.radius > bb.x && ball.x - ball.radius < bb.x + bb.width) {
+                        if (ball.y + ball.radius > topBarY1 && ball.y - ball.radius < topBarY2) {
+
+                            ball.y = topBarY1 - ball.radius;
+                            if (ball.vy > 0) ball.vy *= -0.5;
+                            ball.vx *= 0.9;
+                        }
+                    }
+
+                if (ball.y >= canvas.height - ball.radius) {
+                    ball.y = canvas.height - ball.radius;
+                    ball.vy *= -0.6; // Bounce
+                    ball.vx *= 0.8; // Slow down
+                    
+                    if (Math.abs(ball.vy) < 2 && Math.abs(ball.vx) < 1) {
+
+                        if (!ball.scored) {
+                            streak = 0; // Reset streak on miss
+                        }
+                        setTimeout(() => {
+                            ball = null;
+                        }, 1000);
+                    }
+                }
+
+                if (ball.x <= ball.radius || ball.x >= canvas.width - ball.radius) {
+                    ball.vx *= -0.8;
+                    ball.x = Math.max(ball.radius, Math.min(canvas.width - ball.radius, ball.x));
+                }
+            }
+
+            particles.forEach((particle, index) => {
+                particle.x += particle.vx;
+                particle.y += particle.vy;
+                particle.vy += 0.2; // gravity
+                particle.life--;
+                particle.alpha = particle.life / particle.maxLife;
+                
+                if (particle.life <= 0) {
+                    particles.splice(index, 1);
+                }
+            });
+            
+            updateUI();
+        }
+
+        function draw() {
+
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#0a0a1a');
+            gradient.addColorStop(0.5, '#1a1a2e');
+            gradient.addColorStop(1, '#2a2a4e');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            drawStars();
+            drawSpaceStation();
+            drawHoop();
+            drawBall();
+            drawTrajectory();
+            drawParticles();
+        }
+
+        function drawStars() {
+            ctx.fillStyle = '#00d4ff';
+            for (let i = 0; i < 50; i++) {
+                const x = (i * 137) % canvas.width;
+                const y = (i * 97) % canvas.height;
+                const size = 1 + Math.sin(Date.now() * 0.001 + i) * 0.5;
+                
+                ctx.beginPath();
+                ctx.arc(x, y, size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function drawSpaceStation() {
+
+            ctx.fillStyle = 'rgba(0, 212, 255, 0.1)';
+            ctx.fillRect(0, canvas.height - 50, canvas.width, 50);
+
+            ctx.strokeStyle = 'rgba(0, 212, 255, 0.3)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < canvas.width; i += 50) {
+                ctx.beginPath();
+                ctx.moveTo(i, canvas.height - 50);
+                ctx.lineTo(i, canvas.height);
+                ctx.stroke();
+            }
+        }
+
+        function drawHoop() {
+            const bb = hoop.backboard;
+
+            ctx.fillStyle = 'rgba(0, 212, 255, 0.15)';
+            ctx.fillRect(bb.x, bb.y, bb.width, bb.height);
+
+            ctx.fillStyle = 'rgba(0, 212, 255, 0.6)';
+            ctx.fillRect(bb.x, bb.y, bb.width, bb.topBarHeight);
+
+            ctx.strokeStyle = '#00d4ff';
+            ctx.lineWidth = 6;
+            ctx.shadowColor = '#00d4ff';
+            ctx.shadowBlur = 18;
+            ctx.beginPath();
+            ctx.moveTo(hoop.rim.left, hoop.y);
+            ctx.lineTo(hoop.rim.right, hoop.y);
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+
+            ctx.fillStyle = '#00d4ff';
+            [hoop.rim.left, hoop.rim.right].forEach(rx => {
+                ctx.beginPath();
+                ctx.arc(rx, hoop.y, hoop.rim.radius, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            ctx.strokeStyle = 'rgba(0, 212, 255, 0.6)';
+            ctx.lineWidth = 2;
+            for (let i = 0; i < 8; i++) {
+                const x = hoop.rim.left + (i / 7) * (hoop.rim.right - hoop.rim.left);
+                ctx.beginPath();
+                ctx.moveTo(x, hoop.y);
+                const sway = Math.sin(Date.now() * 0.004 + i) * 3;
+                ctx.lineTo(x + sway, hoop.y + 28);
+                ctx.stroke();
+            }
+        }
+
+        function drawBall() {
+            if (ball) {
+
+                ctx.fillStyle = 'rgba(0, 212, 255, 0.2)';
+                ctx.beginPath();
+                ctx.ellipse(ball.x, canvas.height - 25, ball.radius * 0.8, ball.radius * 0.3, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                const gradient = ctx.createRadialGradient(
+                    ball.x - 5, ball.y - 5, 0,
+                    ball.x, ball.y, ball.radius
+                );
+                gradient.addColorStop(0, '#00ffff');
+                gradient.addColorStop(0.5, '#0088ff');
+                gradient.addColorStop(1, '#0044aa');
+                
+                ctx.fillStyle = gradient;
+                ctx.shadowColor = '#00d4ff';
+                ctx.shadowBlur = 15;
+                ctx.beginPath();
+                ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.arc(ball.x, ball.y, ball.radius * 0.7, 0, Math.PI * 2);
+                ctx.moveTo(ball.x - ball.radius * 0.8, ball.y);
+                ctx.lineTo(ball.x + ball.radius * 0.8, ball.y);
+                ctx.moveTo(ball.x, ball.y - ball.radius * 0.8);
+                ctx.lineTo(ball.x, ball.y + ball.radius * 0.8);
+                ctx.stroke();
+            } else {
+
+                ctx.fillStyle = '#00d4ff';
+                ctx.shadowColor = '#00d4ff';
+                ctx.shadowBlur = 10;
+                ctx.beginPath();
+                ctx.arc(ballStart.x, ballStart.y, 15, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+        }
+
+        function drawTrajectory() {
+            if (!isDragging) return;
+
+            const deltaX = dragEnd.x - dragStart.x;
+            const deltaY = dragEnd.y - dragStart.y;
+            const tempMultiplier = getTemperatureMultiplier ? getTemperatureMultiplier() : 1;
+            let vx = (deltaX / 120) * 9 * tempMultiplier;
+            let vy = (deltaY / 120) * 9 * tempMultiplier;
+
+            const clamp = (v, m) => Math.max(-m, Math.min(m, v));
+            vx = clamp(vx, 16);
+            vy = clamp(vy, 16);
+
+            const g = 0.25; // gravity used in update
+
+            ctx.save();
+            ctx.strokeStyle = 'rgba(0, 212, 255, 0.5)';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([8, 8]);
+            ctx.beginPath();
+            ctx.moveTo(ballStart.x, ballStart.y);
+            const steps = 40;
+            let px = ballStart.x;
+            let py = ballStart.y;
+            for (let i = 1; i <= steps; i++) {
+                const t = i * 0.5; // sample time
+                const x = ballStart.x + vx * t;
+                const y = ballStart.y + vy * t + 0.5 * g * t * t;
+                if (y > canvas.height) break; // stop if below floor
+                ctx.lineTo(x, y);
+                px = x; py = y;
+            }
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            if (window.currentDragPower > 0) {
+                const powerHeight = (window.currentDragPower / 100) * 80;
+                const color = getTemperatureColor ? getTemperatureColor() : '#00d4ff';
+                ctx.fillStyle = color;
+                ctx.shadowColor = color;
+                ctx.shadowBlur = 12;
+                ctx.fillRect(dragEnd.x + 18, dragEnd.y - powerHeight, 6, powerHeight);
+                ctx.shadowBlur = 0;
+            }
+
+            const angle = Math.atan2(py - (py - vy), px - (px - vx));
+            ctx.translate(px, py);
+            ctx.rotate(angle);
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(-18, -8);
+            ctx.lineTo(-18, 8);
+            ctx.closePath();
+            ctx.fillStyle = 'rgba(0, 212, 255, 0.9)';
+            ctx.fill();
+            ctx.restore();
+        }
+
+        function drawParticles() {
+            particles.forEach(particle => {
+                ctx.save();
+                ctx.globalAlpha = particle.alpha;
+                ctx.fillStyle = particle.color;
+                ctx.beginPath();
+                ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            });
+        }
+
+        function createScoreParticles() {
+            for (let i = 0; i < 15; i++) {
+                particles.push({
+                    x: hoop.x + 50,
+                    y: hoop.y,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: Math.random() * -8 - 2,
+                    size: 3 + Math.random() * 3,
+                    color: `hsl(${Math.random() * 60 + 30}, 100%, 60%)`,
+                    life: 60,
+                    maxLife: 60,
+                    alpha: 1
+                });
+            }
+        }
+
+        function updatePowerMeter() {
+            const distance = Math.sqrt(
+                Math.pow(dragEnd.x - dragStart.x, 2) + 
+                Math.pow(dragEnd.y - dragStart.y, 2)
+            );
+
+            if (isDragging && distance > 5) {
+                const power = Math.min(distance / 120 * 100, 100);
+                const tempMultiplier = getTemperatureMultiplier();
+                const finalPowerDisplay = Math.min(power * tempMultiplier, 100);
+
+                drawPowerPreview(finalPowerDisplay);
+            }
+        }
+
+        function drawPowerPreview(power) {
+
+
+            window.currentDragPower = power;
+        }
+
+        function resetPowerMeter() {
+            window.currentDragPower = 0;
+        }
+
+        function updateUI() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('shots').textContent = shots;
+            document.getElementById('streak').textContent = streak;
+        }
+    </script>
+</body>
+</html>
+
